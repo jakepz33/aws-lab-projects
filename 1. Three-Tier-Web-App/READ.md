@@ -90,7 +90,8 @@ This function will fetch data from a datbase an return it to the user.
 it is a service that lets you run code without needing to manage any computers/servers - Lambda will manage them for you. Lambda only runs code when you need it to, so no paying for idle time. It also scales automatically.
 
 - creating a Lambda function call RetrieveUserData and writing the Lambda code:
-<img width="514" height="768" alt="image" src="https://github.com/user-attachments/assets/68c58c35-f25d-4ee3-8f30-4c20f10a7655" />
+<img width="689" height="766" alt="image" src="https://github.com/user-attachments/assets/530bab08-015e-4de1-b277-7fa89019ce1e" />
+
 
 **What does this code do?**  
 This code sets up a Lambd function that retrieves data from a DynamoDB table. It looks for specific user data based on a *userID* and returns that data. There is code inclided for error handling. Its also using AWS SDK to access libraries within AWS with our code, in this case we're accessing the DynamoDB library.

@@ -6,6 +6,9 @@ The three layers consist of the:
 2. Logic Tier: the brains of your app that processes data
 3. Data Tier: the layer where data is stored in a database.
 
+What the data process looks like:  
+<img width="725" height="651" alt="image" src="https://github.com/user-attachments/assets/dac4ce29-c61b-4c47-9f77-9d3746bdcab5" />
+
 Services used in this build:
 
 **Presentation**: S3 bucket, CloudFront Distribution  
@@ -90,11 +93,11 @@ This function will fetch data from a datbase an return it to the user.
 it is a service that lets you run code without needing to manage any computers/servers - Lambda will manage them for you. Lambda only runs code when you need it to, so no paying for idle time. It also scales automatically.
 
 - creating a Lambda function call RetrieveUserData and writing the Lambda code:
-<img width="689" height="766" alt="image" src="https://github.com/user-attachments/assets/530bab08-015e-4de1-b277-7fa89019ce1e" />
-
+<img width="514" height="768" alt="image" src="https://github.com/user-attachments/assets/68c58c35-f25d-4ee3-8f30-4c20f10a7655" />
 
 **What does this code do?**  
-This code sets up a Lambd function that retrieves data from a DynamoDB table. It looks for specific user data based on a *userID* and returns that data. There is code inclided for error handling. Its also using AWS SDK to access libraries within AWS with our code, in this case we're accessing the DynamoDB library.
+This code sets up a Lambd function that retrieves data from a DynamoDB table. It looks for specific user data based on a *userID* and returns that data. There is code inclided for error handling. Its also using AWS SDK to access libraries within AWS with our code, in this case we're accessing the DynamoDB library.  
+- **IMPORTANT**: to allow my code to run properly from the API Gateway and the Presentation layer, I need to specify the Access-Control-Allow-Origin to be my CloudFront URL. Its allowing the origin to be my CloudFront site.
 
 #### Configure API Gateway
 Now that I have my Lambda function ready, I need a way to access it. This is where API Gateway comes in.
@@ -119,9 +122,29 @@ We need an API Gateway because directly exposing Lambda functions to user reques
 #### Set up an API Method
 - Im Creating a GET method that will reference our Lambda function with "Lambda Proxy Integration" on:
 <img width="2811" height="1398" alt="image" src="https://github.com/user-attachments/assets/189c382e-8e2b-4975-8aa4-cef5187a17b4" />
+<br/>
+- Set up is done and now I created my API Method:
+<img width="2248" height="1181" alt="image" src="https://github.com/user-attachments/assets/86bc651d-e44d-45b0-bd4d-cb023498153d" />  
 
-- Set up is done and now I create my API Method:
-<img width="2248" height="1181" alt="image" src="https://github.com/user-attachments/assets/86bc651d-e44d-45b0-bd4d-cb023498153d" />
+
+
+- Next thing I need to do, is enable CORS (Cross-Origin Resource Sharing) for my /users API resource in the API Gateway.  
+- What is CORS?  
+  - CORS is like a security bouncer for your browser. It decides whether your frontend (CloudFront site) is allowed to talk to your backend server (API Gateway). 
+  - If CORS isn't configured in API Gateway, the browser blocks the request from CloudFront, resulting in CORS errors.
+   
+
+
+- I go to my /users Resources API endpoint, and select **Enable CORS**. In the screenshot the CORS are already enabled. But when I click in the menu to enable cors, this menu pops up.
+  
+ <img width="2827" height="923" alt="image" src="https://github.com/user-attachments/assets/91028a90-5719-4ae6-b793-0f426eba699f" />  
+
+ 
+
+- In this menu, I want my Access-Control-Allow-Origin to be my CloudFront Distribution URL. This will allow access to the this resource.
+
+<img width="2832" height="1273" alt="image" src="https://github.com/user-attachments/assets/1103ccac-058a-4219-901c-c82d29c282f6" />  
+
 
 #### Deploy your API
 Deploying the API makes it accessible through a public endpoint, so I can actually start using it. I deployed to my Prod stage.
@@ -129,8 +152,9 @@ Deploying the API makes it accessible through a public endpoint, so I can actual
 
 - When I try visting my API by using the Invoke URL I get the following error message, this is because I don't have dynamoDB configured yet:
 <img width="2438" height="383" alt="image" src="https://github.com/user-attachments/assets/d459c76e-506f-4ec7-81fc-8d3f8e000a7f" />
+<br/>
 
-##3. Set Up the Data Tier
+## 3. Set Up the Data Tier
 Now I'll have a DynamoDB that I need to create and the Lambda function I created earlier to retrieve data. I will need a way to expose that functionality to the outside world. That's where API Gateway comes in.
 
 API Gateway acts as a front door for our Lambda function, handling requests and routing them to the right place.
@@ -147,13 +171,14 @@ Here I am going to add a sample user to my UserData table.
 - Selecting my UserData Table, I then click on "Explore Table items" button.
 - At the "Items returned" panel, I select "Create item".
 - I go the JSON view and toggle off "View DynamoDB JSON". And paste in my desired JSON data. Then I create the item.
-<img width="2639" height="823" alt="image" src="https://github.com/user-attachments/assets/1cc30f3e-c125-4ea4-9bd2-7ab7572d8650" />
-<br/>
+<img width="2639" height="823" alt="image" src="https://github.com/user-attachments/assets/1cc30f3e-c125-4ea4-9bd2-7ab7572d8650" />  <br/>
+
+
 - I now see it in the **Items returned** tab
 <img width="1656" height="604" alt="image" src="https://github.com/user-attachments/assets/eb34a6f6-df1c-46f9-a38e-dd241009e673" />
 <b/>
 
-#### Grant DynamoDB access to Lambda
+#### Grant Lambda access to DynamoDB 
 - I'm going to update my Lambda function's permission policies to add AmazonDynamoDBReadOnlyAccess
 - In the Configuration Tab of my Lambda function, Ill select Permissions --> Select Role name hyperlink
 <img width="1847" height="948" alt="image" src="https://github.com/user-attachments/assets/a53cbbc3-2fef-4763-ae46-0761b923d4c3" />
@@ -164,41 +189,18 @@ Here I am going to add a sample user to my UserData table.
 <img width="2787" height="954" alt="image" src="https://github.com/user-attachments/assets/ad4d24fb-5aa2-41cc-94b8-b59a681c10d1" />
 <br/>
 
+## How are these services all connected? 
+
+Front-end and Back-end.  
+Presentation:  
+- CloudFront provides the public facing URL. The origin is set to point to my index.html file within my S3 bucket. The UI is displayed because my front-end code files are in the same folder as the index file.  
+
+Logic:  
+- When the user inputs a User ID and Selects *Get User Data* button, an event is triggered in the presentation HTML and JS code. OnClick the fetchUserData() function is called. This function gets the value of the entered UserId, in this function it is making a GET API call to my API Gateway API resource "/users" and passing the queryStringParameters.userID to my Lambda function. Lambda uses this value to pull the data from DynamoDB where the userId == that of which was entered. The Access-Control-Allow-Origin lets us send the response of Lambda back to our CloudFront distribution. End result: request data is retrieved. 
 
 
+<img width="1347" height="504" alt="image" src="https://github.com/user-attachments/assets/616a8ef1-8526-45d6-810d-902d5e7832ca" />
 
 
-
-
-
-
-
-
-
- 
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<img width="720" height="642" alt="image" src="https://github.com/user-attachments/assets/72e8774a-d7ac-4bce-abcb-185cda2633fe" />
 

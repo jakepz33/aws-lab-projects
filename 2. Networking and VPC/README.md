@@ -107,6 +107,7 @@ Here, I am creating a Private subnet to house my resources that should not have 
 <img width="875" height="663" alt="image" src="https://github.com/user-attachments/assets/856f72d1-41f7-4aff-a4ee-d1e681ab4956" /><br/>
 
 #### Set up a private route table
+- In this step, I created a new Private Route table. It is set up just like the public route table. As of right now I just set up an association between this new private route table to my private subnet.
 
 
 
